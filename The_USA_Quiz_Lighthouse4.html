@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>The USA Quiz – Lighthouse 4</title>
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+:root{--bg:#0b1020;--panel:#151d35;--panel2:#202a48;--text:#f7f8fc;--muted:#aab3ca;--accent:#5eead4;--danger:#fb7185;--gold:#facc15}
+*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:radial-gradient(circle at top,#24345d,#0b1020 60%);color:var(--text);min-height:100vh}
+.wrap{max-width:1100px;margin:auto;padding:22px}.top{display:flex;justify-content:space-between;align-items:center;gap:12px}.brand{font-weight:800;font-size:22px}.badge{padding:8px 12px;border-radius:999px;background:#ffffff12;color:var(--muted)}
+.card{background:#151d35eF;border:1px solid #ffffff12;border-radius:24px;padding:26px;box-shadow:0 18px 60px #0005;margin-top:20px}
+h1{font-size:clamp(32px,6vw,64px);margin:8px 0 12px}h2{font-size:clamp(25px,4vw,42px);margin:8px 0 22px}.sub{color:var(--muted);font-size:18px;line-height:1.45}
+button,input{font:inherit}button{border:0;border-radius:15px;padding:15px 20px;font-weight:800;cursor:pointer;background:var(--accent);color:#06201d}button.secondary{background:#ffffff14;color:white}button.danger{background:var(--danger);color:#fff}button:disabled{opacity:.45;cursor:not-allowed}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}@media(max-width:700px){.grid{grid-template-columns:1fr}.wrap{padding:14px}.card{padding:20px}}
+.answer{min-height:82px;background:var(--panel2);color:white;text-align:left;font-size:19px;border:2px solid transparent}.answer:hover{border-color:var(--accent)}.answer.selected{border-color:var(--gold);background:#5eead422}.answer.correct{border-color:#34d399;background:#34d39922}.answer.wrong{border-color:var(--danger);background:#fb718522}
+.code{font-size:46px;letter-spacing:8px;font-weight:900}.qr{background:white;padding:12px;border-radius:15px;width:max-content}
+.stat{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid #ffffff12}.rank{font-size:22px}.tiny{font-size:13px;color:var(--muted)}.center{text-align:center}.hidden{display:none!important}.timer{font-size:46px;font-weight:900}.pill{display:inline-block;padding:7px 11px;border-radius:999px;background:#ffffff10}.notice{padding:14px;border-radius:14px;background:#ffffff0b;color:var(--muted);margin:12px 0}.name{font-weight:800}.bar{height:8px;background:#ffffff12;border-radius:99px;overflow:hidden}.bar>i{display:block;height:100%;background:var(--accent);width:0}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><div class="brand">🇺🇸 THE USA QUIZ</div><div class="badge">Lighthouse 4 · Extra-Differenzierung</div></div>
+  <div id="app"></div>
+</div>
+<script>
+const QUESTIONS = [{"level": 2, "q": "What is the capital of the USA?", "a": ["New York City", "Washington, DC", "Los Angeles"], "correct": 1}, {"level": 2, "q": "How many states are there?", "a": ["48", "49", "50"], "correct": 2}, {"level": 2, "q": "Which state is Los Angeles in?", "a": ["Florida", "California", "Alaska"], "correct": 1}, {"level": 2, "q": "Which state has the motto ‘friendship’?", "a": ["Texas", "New York State", "Alaska"], "correct": 0}, {"level": 2, "q": "Which state is the Everglades in?", "a": ["Florida", "New York State", "Alaska"], "correct": 0}, {"level": 2, "q": "Which state is the famous waterfall Niagara Falls in?", "a": ["Hawaii", "Florida", "New York State"], "correct": 2}, {"level": 2, "q": "Which state is New York City in?", "a": ["Florida", "New York State", "Alaska"], "correct": 1}, {"level": 2, "q": "Which of these states aren’t connected to the rest of the country?", "a": ["Alaska and Florida", "Alaska and Hawaii", "Florida and Hawaii"], "correct": 1}, {"level": 2, "q": "Which state is called the Sunshine State?", "a": ["Florida", "Alaska", "New York State"], "correct": 0}, {"level": 2, "q": "Where did the world’s first rodeo take place?", "a": ["Hawaii", "California", "Texas"], "correct": 2}, {"level": 2, "q": "Which state is San Francisco in?", "a": ["Texas", "California", "Florida"], "correct": 1}, {"level": 2, "q": "Which state has 137 islands?", "a": ["Hawaii", "California", "Texas"], "correct": 0}, {"level": 3, "q": "Which city is Hollywood in?", "a": ["San Franciso", "Los Angeles", "New York City"], "correct": 1}, {"level": 3, "q": "Which state is famous for Tex-Mex food?", "a": ["Texas", "Alaska", "Hawaii"], "correct": 0}, {"level": 3, "q": "Which state is the biggest in the USA?", "a": ["New York State", "Hawaii", "Alaska"], "correct": 2}, {"level": 3, "q": "Which state has alligators and crocodiles?", "a": ["Florida", "Alaska", "New York State"], "correct": 0}, {"level": 3, "q": "Which state has more cattle than all the others?", "a": ["Arizona", "Alaska", "Texas"], "correct": 2}, {"level": 3, "q": "Which state is north-west of Canada?", "a": ["Arizona", "Alaska", "New York State"], "correct": 1}, {"level": 3, "q": "Which of these states have a border with Mexico?", "a": ["Arizona and Texas", "Arizona and Florida", "Florida and Texas"], "correct": 0}, {"level": 3, "q": "Which city is the Golden Gate Bridge in?", "a": ["San Francisco", "Los Angeles", "New York City"], "correct": 0}, {"level": 3, "q": "What do people call New York City?", "a": ["The city that’s super fun.", "The city that never sleeps.", "The city that always rocks."], "correct": 1}, {"level": 3, "q": "How many people live in New York City?", "a": ["about 3 million", "about 6 million", "about 9 million"], "correct": 2}, {"level": 3, "q": "Which state produces the most oil in the USA?", "a": ["California", "Arizona", "Texas"], "correct": 2}, {"level": 3, "q": "Which state is the Grand Canyon in?", "a": ["Arizona", "Alaska", "New York State"], "correct": 0}];
+const app=document.getElementById('app');
+const params=new URLSearchParams(location.search);
+let peer=null, conn=null, hostConnections=new Map(), state={mode:null,players:{},qIndex:0,answers:{},phase:'lobby',started:false,selectedLevel:null,deadline:0};
+const letters=['A','B','C'];
+function esc(s){return s.replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));}
+function saveHost(){try{localStorage.setItem('usaQuizHost',JSON.stringify({players:state.players,qIndex:state.qIndex,answers:state.answers,phase:state.phase,started:state.started,selectedLevel:state.selectedLevel,deadline:state.deadline,room:location.hash.slice(1)}))}catch(e){}}
+function loadHost(){try{let x=JSON.parse(localStorage.getItem('usaQuizHost'));if(x){state={...state,...x};}}catch(e){}}
+function roomCode(){return location.hash.slice(1).toUpperCase()}
+function makeCode(){return Math.random().toString(36).slice(2,8).toUpperCase()}
+function render(html){app.innerHTML=html}
+function home(){
+ render(`<div class="card center"><h1>THE USA QUIZ</h1><p class="sub">A live class quiz with QR-code login, two challenge levels and a live leaderboard.</p>
+ <div class="row" style="justify-content:center;margin-top:25px"><button onclick="startTeacher()">👩‍🏫 Teacher / Beamer</button><button class="secondary" onclick="startPlayer()">📱 Student / Join</button></div>
+ <div class="notice">For a real class game, the teacher opens the Teacher view on the classroom screen. Students join from their iPads using the QR code.</div></div>`);
+}
+function startTeacher(){
+ state={mode:'host',players:{},qIndex:0,answers:{},phase:'lobby',started:false,selectedLevel:null,deadline:0};
+ const code=makeCode(); location.hash=code;
+ peer=new Peer('usaquiz-'+code.toLowerCase());
+ peer.on('open',()=>{renderHost();});
+ peer.on('connection',c=>{
+   c.on('open',()=>{hostConnections.set(c.peer,c); c.on('data',d=>hostMessage(c,d)); send(c,{type:'state',state:publicState()});});
+   c.on('close',()=>{delete state.players[c.peer];hostConnections.delete(c.peer);broadcast();});
+ });
+ peer.on('error',e=>alert('Connection error: '+e.type));
+}
+function publicState(){return {...state,answers:{...state.answers}}}
+function send(c,d){try{c.send(d)}catch(e){}}
+function broadcast(){saveHost();for(const c of hostConnections.values())send(c,{type:'state',state:publicState()});renderHost();}
+function hostMessage(c,d){
+ if(d.type==='join'){state.players[c.peer]={name:d.name,score:0,connected:true};broadcast();}
+ if(d.type==='answer' && state.phase==='question' && !state.answers[c.peer]){
+   state.answers[c.peer]={choice:d.choice,at:Date.now()};
+   const q=QUESTIONS[state.qIndex]; if(d.choice===q.correct) state.players[c.peer].score += q.level;
+   broadcast();
+ }
+}
+function renderHost(){
+ const code=roomCode(), joinURL=location.origin+location.pathname+'?join='+code;
+ if(!state.started) {
+   let list=Object.entries(state.players).map(([id,p])=>`<div class="stat"><span class="name">👤 ${esc(p.name)}</span><span>ready</span></div>`).join('');
+   render(`<div class="card"><div class="tiny">GAME CODE</div><div class="code">${code}</div><div class="row" style="align-items:flex-start"><div><div id="qrcode" class="qr"></div><p class="tiny">Students scan this QR code.</p></div><div style="flex:1;min-width:260px"><h2>Waiting for players…</h2><div class="notice">Join link: <b>${esc(joinURL)}</b></div>${list||'<div class="sub">No players yet.</div>'}<div class="row" style="margin-top:18px"><button ${Object.keys(state.players).length?'':'disabled'} onclick="beginQuestion()">START QUIZ</button><button class="secondary" onclick="home()">EXIT</button></div></div></div></div>`);
+   new QRCode(document.getElementById('qrcode'),{text:joinURL,width:190,height:190});
+ } else renderQuestionHost();
+}
+function beginQuestion(){
+ state.started=true;state.phase='question';state.qIndex=0;state.answers={};state.deadline=Date.now()+15000;state.selectedLevel=null;broadcast();startTimer();
+}
+function startTimer(){clearInterval(window.tick);window.tick=setInterval(()=>{if(state.phase==='question' && Date.now()>=state.deadline){clearInterval(window.tick);reveal()} renderHostTimer();},250);}
+function renderHostTimer(){const el=document.getElementById('timer');if(el){el.textContent=Math.max(0,Math.ceil((state.deadline-Date.now())/1000));}}
+function renderQuestionHost(){
+ const q=QUESTIONS[state.qIndex], total=QUESTIONS.length, answered=Object.keys(state.answers).length;
+ render(`<div class="card"><div class="row" style="justify-content:space-between"><span class="pill">Question ${state.qIndex+1}/${total}</span><span class="pill">${q.level===2?'🟢 EASY · 2 points':'🔵 CHALLENGE · 3 points'}</span><span id="timer" class="timer">15</span></div>
+ <h2>${esc(q.q)}</h2><div class="grid">${q.a.map((x,i)=>`<button class="answer" disabled>${letters[i]}) ${esc(x)}</button>`).join('')}</div>
+ <div class="notice">${answered} / ${Object.keys(state.players).length} answers received.</div>
+ <div class="row"><button onclick="reveal()">SHOW RESULTS</button><button class="secondary" onclick="skipQuestion()">SKIP</button></div></div>`);
+ renderHostTimer();
+}
+function reveal(){
+ if(state.phase!=='question')return; state.phase='results';clearInterval(window.tick);broadcast();renderResultsHost();
+}
+function renderResultsHost(){
+ const q=QUESTIONS[state.qIndex];
+ const rows=Object.entries(state.players).sort((a,b)=>b[1].score-a[1].score).map(([id,p],i)=>{
+  const a=state.answers[id]; const ok=a&&a.choice===q.correct;
+  return `<div class="stat"><span class="rank">${i+1}. ${esc(p.name)}</span><span>${a?(ok?'✅':'❌'):'⏱️'} ${p.score} pts</span></div>`;
+ }).join('');
+ render(`<div class="card"><div class="pill">${q.level===2?'🟢 2 points':'🔵 3 points'}</div><h2>${esc(q.q)}</h2><div class="notice">Correct answer: <b>${letters[q.correct]}) ${esc(q.a[q.correct])}</b></div>${rows}<div class="row" style="margin-top:20px"><button onclick="nextQuestion()">${state.qIndex===QUESTIONS.length-1?'FINISH':'NEXT QUESTION →'}</button></div></div>`);
+}
+function nextQuestion(){
+ if(state.qIndex>=QUESTIONS.length-1){state.phase='final';broadcast();renderFinalHost();return}
+ state.qIndex++;state.phase='question';state.answers={};state.deadline=Date.now()+15000;broadcast();startTimer();
+}
+function skipQuestion(){state.qIndex++;if(state.qIndex>=QUESTIONS.length){state.phase='final';broadcast();renderFinalHost();return}state.answers={};state.phase='question';state.deadline=Date.now()+15000;broadcast();startTimer();}
+function renderFinalHost(){
+ const rows=Object.values(state.players).sort((a,b)=>b.score-a.score).map((p,i)=>`<div class="stat"><span class="rank">${i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1)+'.'} ${esc(p.name)}</span><b>${p.score}</b></div>`).join('');
+ render(`<div class="card center"><h1>🏆 FINAL RESULTS</h1><div style="max-width:650px;margin:auto">${rows}</div><button style="margin-top:20px" onclick="location.reload()">NEW GAME</button></div>`);
+}
+function startPlayer(){
+ const code=(params.get('join')||prompt('Enter the game code')).trim().toUpperCase(); if(!code)return;
+ location.hash=code; peer=new Peer();
+ peer.on('open',()=>{conn=peer.connect('usaquiz-'+code.toLowerCase());conn.on('open',()=>playerName());conn.on('data',d=>{if(d.type==='state'){state={...d.state,mode:'player'};renderPlayer();}});conn.on('close',()=>alert('The game connection was closed.'));});
+ peer.on('error',e=>alert('Could not join game. Check the code and that the teacher is still connected.'));
+}
+function playerName(){
+ render(`<div class="card center"><h2>Join THE USA QUIZ</h2><p class="sub">Choose the name your teacher will see.</p><input id="playerName" maxlength="18" placeholder="Your first name" style="padding:15px;border-radius:12px;border:0;width:min(100%,360px)"><div><button style="margin-top:15px" onclick="joinNow()">JOIN GAME</button></div></div>`);
+}
+function joinNow(){const n=document.getElementById('playerName').value.trim();if(!n)return;send(conn,{type:'join',name:n});render(`<div class="card center"><h2>You're in! 🎉</h2><p class="sub">Wait for the teacher to start.</p></div>`);}
+function renderPlayer(){
+ if(!state.started || state.phase==='lobby'){render(`<div class="card center"><h2>You're in! 🎉</h2><p class="sub">Wait for the teacher to start the quiz.</p></div>`);return;}
+ if(state.phase==='question') renderPlayerQuestion();
+ else if(state.phase==='results') renderPlayerResults();
+ else render(`<div class="card center"><h1>🏆</h1><h2>Quiz finished!</h2><p class="sub">Look at the classroom screen for the final leaderboard.</p></div>`);
+}
+function renderPlayerQuestion(){
+ const q=QUESTIONS[state.qIndex];
+ render(`<div class="card"><div class="row" style="justify-content:space-between"><span class="pill">Question ${state.qIndex+1}/${QUESTIONS.length}</span><span class="pill">${q.level===2?'🟢 EASY · 2 points':'🔵 CHALLENGE · 3 points'}</span></div><h2>${esc(q.q)}</h2><div class="grid">${q.a.map((x,i)=>`<button class="answer" id="ans${i}" onclick="answer(${i})">${letters[i]}) ${esc(x)}</button>`).join('')}</div><p id="wait" class="notice hidden">Answer locked in. Waiting for everyone else…</p></div>`);
+}
+function answer(i){if(state.answers[peer.id])return;document.querySelectorAll('.answer').forEach(b=>b.disabled=true);document.getElementById('ans'+i).classList.add('selected');state.answers[peer.id]={choice:i};send(conn,{type:'answer',choice:i});document.getElementById('wait').classList.remove('hidden');}
+function renderPlayerResults(){
+ const q=QUESTIONS[state.qIndex], a=state.answers[peer.id], ok=a&&a.choice===q.correct;
+ render(`<div class="card center"><div class="pill">${ok?'✅ CORRECT':'❌ NOT THIS TIME'}</div><h2>${ok?'Great job!':'Keep going!'}</h2><p class="sub">Correct answer: <b>${letters[q.correct]}) ${esc(q.a[q.correct])}</b></p><p class="sub">Your score: <b>${state.players[peer.id]?.score??0}</b></p><div class="notice">Next question is coming up on the classroom screen.</div></div>`);
+}
+if(params.get('join')) startPlayer(); else home();
+</script>
+</body>
+</html>
